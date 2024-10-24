@@ -80,16 +80,32 @@
             </template>
 
             <v-list-item-content>
-              <template v-if="editingId === task.id">
+              <template v-if="editingId === task._id">
                 <v-text-field
                   v-model="editingText"
-                  @blur="finishEditing(task)"
                   @keyup.enter="finishEditing(task)"
                   hide-details
                   dense
                   outlined
                   autofocus
                 />
+                <v-select
+                  v-model="editingPriority"
+                  :items="priorityOptions"
+                  hide-details
+                  dense
+                  outlined
+                  @change="updatePriority(task, editingPriority)"
+                />
+                <v-btn
+                  class="mt-1"
+                  prepend-icon="mdi-check-circle"
+                  color="#74bc68"
+                  variant="outlined"
+                  @click="finishEditing(task)"
+                >
+                  Save
+                </v-btn>
               </template>
               <template v-else>
                 <v-list-item-title
@@ -177,6 +193,7 @@ const newTask = ref('')
 const newTaskPriority = ref<Task['priority']>('medium')
 const editingId = ref<number | null>(null)
 const editingText = ref('')
+const editingPriority = ref('')
 const statusFilter = ref('all')
 const priorityFilter = ref('all')
 const deleteDialog = ref(false)
@@ -270,17 +287,28 @@ const updateFilteredTasks = async (task: Task) => {
 }
 
 const startEditing = (task: Task) => {
-  editingId.value = task.id
+  editingId.value = task._id
   editingText.value = task.text
+  editingPriority.value = task.priority // Set the editing priority
 }
 
 const finishEditing = async (task: Task) => {
-  if (editingText.value.trim()) {
-    await api.updateTask(task._id, { text: editingText.value })
+  if (editingText.value.trim() || editingPriority.value !== task.priority) {
+    await api.updateTask(task._id, {
+      text: editingText.value,
+      priority: editingPriority.value, // Update the priority
+    })
     task.text = editingText.value
+    task.priority = editingPriority.value // Update the task's priority in the local state
   }
   editingId.value = null
   editingText.value = ''
+  editingPriority.value = '' // Reset the editing priority
+}
+
+const updatePriority = async (task: Task, newPriority: string) => {
+  await api.updateTask(task._id, { priority: newPriority })
+  task.priority = newPriority // Update the task's priority in the local state
 }
 
 const filteredTasks = computed(() => {
