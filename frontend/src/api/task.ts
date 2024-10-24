@@ -33,4 +33,15 @@ export const api = {
   async deleteTask(id: string) {
     await axios.delete(`${API_URL}/api/tasks/${id}`)
   },
+
+  // New search function
+  async searchTasks(query: string, priority: string) {
+    const response = await axios.get(`${API_URL}/api/tasks/search`, {
+      params: {
+        query,
+        priority,
+      },
+    })
+    return response.data
+  },
 }

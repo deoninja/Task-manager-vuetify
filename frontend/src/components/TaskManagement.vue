@@ -80,6 +80,17 @@
                 bg-color="white"
               />
             </v-col>
+            <v-col cols="12">
+              <v-text-field
+                v-model="searchQuery"
+                label="Search Tasks"
+                hide-details
+                variant="outlined"
+                class="rounded-lg"
+                bg-color="white"
+                @input="searchTasks"
+              />
+            </v-col>
           </v-row>
 
           <!-- Task List -->
@@ -377,40 +388,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { api } from '../api/task'
+// import type { Task } from '../types/task'
 
 interface Task {
-  [x: string]: any
-  id: number
+  _id: string // Add this line
+  id: number // Assuming you still want to keep this, but note you might not need it.
   text: string
   completed: boolean
   priority: string
 }
-
 const tasks = ref<Task[]>([])
 const newTask = ref('')
 const newTaskPriority = ref<Task['priority']>('medium')
-const editingId = ref<number | null>(null)
+const editingId = ref<string | null>(null)
 const editingText = ref('')
 const editingPriority = ref('')
 const statusFilter = ref('all')
 const priorityFilter = ref('all')
 const deleteDialog = ref(false)
 const taskToDelete = ref<Task | null>(null)
+const searchQuery = ref('')
 
+// Load tasks based on filters
 const loadTasks = async () => {
   tasks.value = await api.getTasks(statusFilter.value, priorityFilter.value)
 }
 
+// Search Task
+const searchTasks = async () => {
+  tasks.value = await api.searchTasks(searchQuery.value, priorityFilter.value)
+}
+
+// Watch for filter changes and load tasks
 watch([statusFilter, priorityFilter], async () => {
-  await loadTasks()
+  if (!searchQuery.value) {
+    await loadTasks()
+  } else {
+    await searchTasks()
+  }
 })
 
+// Watch the searchQuery for changes
+watch(searchQuery, async () => {
+  if (searchQuery.value) {
+    await searchTasks() // Perform the search when a query is input
+  } else {
+    await loadTasks() // Load all tasks if the search query is cleared
+  }
+})
+
+// onMounted to load tasks initially
 onMounted(async () => {
   await loadTasks()
 })
-
 const priorityOptions = [
   { title: 'Low', value: 'low' },
   { title: 'Medium', value: 'medium' },
