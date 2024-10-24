@@ -1,183 +1,383 @@
 <template>
-  <v-container class="pa-4">
-    <v-card class="mx-auto" max-width="800">
-      <v-card-title class="text-h4 mb-4"> Task Management </v-card-title>
+  <div
+    class="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500"
+  >
+    <v-container class="py-8">
+      <v-card
+        class="mx-auto backdrop-blur-sm bg-white/90 rounded-xl shadow-xl"
+        max-width="1000"
+        elevation="0"
+      >
+        <v-card-title class="text-center pt-6 pb-2">
+          <h1
+            class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text"
+          >
+            Task Management
+          </h1>
+        </v-card-title>
 
-      <v-card-text>
-        <!-- Add Task Form -->
-        <v-row class="mb-4">
-          <v-col cols="12" sm="6">
-            <v-text-field
-              v-model="newTask"
-              label="Add a new task..."
-              @keyup.enter="addTask"
-              hide-details
-              dense
-              outlined
-            />
-          </v-col>
-          <v-col cols="12" sm="3">
-            <v-select
-              v-model="newTaskPriority"
-              :items="priorityOptions"
-              label="Priority"
-              hide-details
-              dense
-              outlined
-            />
-          </v-col>
-          <v-col cols="12" sm="3">
-            <v-btn
-              color="primary"
-              block
-              @click="addTask"
-              :disabled="!newTask.trim()"
+        <v-card-text class="px-4 md:px-6">
+          <!-- Add Task Form -->
+          <v-row class="mb-6">
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="newTask"
+                label="Add a new task..."
+                @keyup.enter="addTask"
+                hide-details
+                variant="outlined"
+                class="rounded-lg"
+                bg-color="white"
+              />
+            </v-col>
+            <v-col cols="12" md="3">
+              <v-select
+                v-model="newTaskPriority"
+                :items="priorityOptions"
+                label="Priority"
+                hide-details
+                variant="outlined"
+                class="rounded-lg"
+                bg-color="white"
+              />
+            </v-col>
+            <v-col cols="12" md="3">
+              <v-btn
+                color="primary"
+                block
+                @click="addTask"
+                :disabled="!newTask.trim()"
+                class="rounded-lg h-[56px] text-white bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+                elevation="2"
+              >
+                <v-icon left class="mr-2">mdi-plus</v-icon>
+                Add Task
+              </v-btn>
+            </v-col>
+          </v-row>
+
+          <!-- Filters -->
+          <v-row class="mb-6">
+            <v-col cols="12" sm="6">
+              <v-select
+                v-model="statusFilter"
+                :items="statusOptions"
+                label="Status Filter"
+                hide-details
+                variant="outlined"
+                class="rounded-lg"
+                bg-color="white"
+              />
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-select
+                v-model="priorityFilter"
+                :items="priorityFilterOptions"
+                label="Priority Filter"
+                hide-details
+                variant="outlined"
+                class="rounded-lg"
+                bg-color="white"
+              />
+            </v-col>
+          </v-row>
+
+          <!-- Task List -->
+          <v-list
+            class="d-none d-sm-block bg-transparent rounded-xl overflow-hidden"
+          >
+            <v-list-item
+              v-for="task in filteredTasks"
+              :key="task.id"
+              :class="{
+                'bg-gray-50/50 hover:bg-gray-100/50 transition-colors':
+                  !task.completed,
+                'bg-gray-100/50': task.completed,
+              }"
+              class="mb-2 rounded-lg"
             >
-              <v-icon left>mdi-plus</v-icon>
-              Add Task
-            </v-btn>
-          </v-col>
-        </v-row>
+              <template v-slot:prepend>
+                <v-checkbox
+                  v-model="task.completed"
+                  @change="updateFilteredTasks(task)"
+                  hide-details
+                  color="success"
+                  class="mr-2"
+                />
+              </template>
+              <v-list-item-content class="py-2">
+                <template v-if="editingId === task._id">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="col-span-1 md:col-span-2">
+                      <v-text-field
+                        v-model="editingText"
+                        @keyup.enter="finishEditing(task)"
+                        hide-details
+                        variant="outlined"
+                        density="comfortable"
+                        placeholder="Task text"
+                        class="mb-2"
+                        autofocus
+                      />
+                    </div>
 
-        <!-- Filters -->
-        <v-row class="mb-4">
-          <v-col cols="12" sm="6">
-            <v-select
-              v-model="statusFilter"
-              :items="statusOptions"
-              label="Status Filter"
-              hide-details
-              dense
-              outlined
-            />
-          </v-col>
-          <v-col cols="12" sm="6">
-            <v-select
-              v-model="priorityFilter"
-              :items="priorityFilterOptions"
-              label="Priority Filter"
-              hide-details
-              dense
-              outlined
-            />
-          </v-col>
-        </v-row>
+                    <div class="w-full">
+                      <v-select
+                        v-model="editingPriority"
+                        :items="priorityOptions"
+                        hide-details
+                        variant="outlined"
+                        density="comfortable"
+                        placeholder="Priority"
+                        class="mb-2 md:mb-0"
+                        @change="updatePriority(task, editingPriority)"
+                      />
+                    </div>
 
-        <!-- Task List -->
-        <v-list>
+                    <div class="flex justify-end md:justify-start items-center">
+                      <v-btn
+                        prepend-icon="mdi-check-circle"
+                        color="success"
+                        variant="tonal"
+                        @click="finishEditing(task)"
+                        class="rounded-lg w-full md:w-auto"
+                      >
+                        Save Changes
+                      </v-btn>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center gap-2"
+                  >
+                    <v-list-item-title
+                      :class="{
+                        'text-decoration-line-through text-gray-500':
+                          task.completed,
+                        'font-medium': !task.completed,
+                        'break-words w-full': true,
+                      }"
+                    >
+                      {{ task.text }}
+                    </v-list-item-title>
+                  </div>
+                </template>
+              </v-list-item-content>
+
+              <template v-slot:append>
+                <div class="flex items-center gap-2">
+                  <v-chip
+                    :color="getPriorityColor(task.priority)"
+                    class="mr-2"
+                    size="small"
+                    label
+                    variant="elevated"
+                  >
+                    {{ task.priority }}
+                  </v-chip>
+
+                  <v-btn
+                    icon="mdi-pencil"
+                    variant="text"
+                    size="small"
+                    @click="startEditing(task)"
+                    class="mr-1"
+                  />
+                  <v-btn
+                    icon="mdi-delete"
+                    variant="text"
+                    size="small"
+                    color="error"
+                    @click="openDeleteDialog(task)"
+                  />
+                </div>
+              </template>
+            </v-list-item>
+          </v-list>
+
           <v-list-item
             v-for="task in filteredTasks"
             :key="task.id"
-            :class="{ 'bg-grey-lighten-4': task.completed }"
+            :class="{
+              'bg-gray-50/50 hover:bg-gray-100/50 transition-colors':
+                !task.completed,
+              'bg-gray-100/50': task.completed,
+            }"
+            class="d-block d-sm-none mb-3 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all"
           >
-            <template v-slot:prepend>
-              <v-checkbox
-                v-model="task.completed"
-                @change="updateFilteredTasks(task)"
-                hide-details
-                color="success"
-              />
-            </template>
-
-            <v-list-item-content>
-              <template v-if="editingId === task._id">
-                <v-text-field
-                  v-model="editingText"
-                  @keyup.enter="finishEditing(task)"
+            <div class="w-full flex flex-col sm:flex-row gap-4 p-4">
+              <!-- Checkbox Section -->
+              <div class="flex items-start sm:items-center">
+                <v-checkbox
+                  v-model="task.completed"
+                  @change="updateFilteredTasks(task)"
                   hide-details
-                  dense
-                  outlined
-                  autofocus
-                />
-                <v-select
-                  v-model="editingPriority"
-                  :items="priorityOptions"
-                  hide-details
-                  dense
-                  outlined
-                  @change="updatePriority(task, editingPriority)"
-                />
-                <v-btn
+                  color="success"
                   class="mt-1"
-                  prepend-icon="mdi-check-circle"
-                  color="#74bc68"
-                  variant="outlined"
-                  @click="finishEditing(task)"
-                >
-                  Save
-                </v-btn>
-              </template>
-              <template v-else>
-                <v-list-item-title
-                  :class="{ 'text-decoration-line-through': task.completed }"
-                >
-                  {{ task.text }}
-                </v-list-item-title>
-              </template>
-            </v-list-item-content>
+                />
+              </div>
 
-            <template v-slot:append>
-              <v-chip
-                :color="getPriorityColor(task.priority)"
-                class="mr-2"
-                size="small"
-                label
-              >
-                {{ task.priority }}
-              </v-chip>
+              <!-- Content Section -->
+              <div class="flex-grow">
+                <template v-if="editingId === task._id">
+                  <div class="grid gap-4">
+                    <div class="w-full">
+                      <label
+                        class="text-sm font-medium text-gray-700 mb-1 block"
+                      >
+                        Task Description
+                      </label>
+                      <v-text-field
+                        v-model="editingText"
+                        @keyup.enter="finishEditing(task)"
+                        hide-details
+                        variant="outlined"
+                        density="comfortable"
+                        placeholder="Enter task description"
+                        class="mb-3"
+                        bg-color="white"
+                        autofocus
+                      />
+                    </div>
 
-              <v-btn
-                icon="mdi-pencil"
-                variant="text"
-                size="small"
-                @click="startEditing(task)"
-                class="mr-2"
-              />
-              <v-btn
-                icon="mdi-delete"
-                variant="text"
-                size="small"
-                color="error"
-                @click="openDeleteDialog(task)"
-              />
-            </template>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label
+                          class="text-sm font-medium text-gray-700 mb-1 block"
+                        >
+                          Priority Level
+                        </label>
+                        <v-select
+                          v-model="editingPriority"
+                          :items="priorityOptions"
+                          hide-details
+                          variant="outlined"
+                          density="comfortable"
+                          placeholder="Select priority"
+                          bg-color="white"
+                          @change="updatePriority(task, editingPriority)"
+                        />
+                      </div>
+
+                      <div class="flex items-end">
+                        <v-btn
+                          prepend-icon="mdi-check-circle"
+                          color="success"
+                          variant="tonal"
+                          @click="finishEditing(task)"
+                          class="rounded-lg w-full sm:w-auto h-[56px]"
+                        >
+                          Save Changes
+                        </v-btn>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                  >
+                    <div class="flex-grow">
+                      <span
+                        :class="{
+                          'text-decoration-line-through text-gray-500':
+                            task.completed,
+                          'text-gray-900': !task.completed,
+                          'text-base sm:text-lg font-medium break-words': true,
+                        }"
+                      >
+                        {{ task.text }}
+                      </span>
+                    </div>
+
+                    <div class="flex items-center gap-2 ml-auto">
+                      <v-chip
+                        :color="getPriorityColor(task.priority)"
+                        size="small"
+                        label
+                        variant="elevated"
+                        class="px-3"
+                      >
+                        {{ task.priority }}
+                      </v-chip>
+
+                      <div class="flex gap-1">
+                        <v-btn
+                          icon="mdi-pencil"
+                          variant="text"
+                          size="small"
+                          @click="startEditing(task)"
+                          class="rounded-full"
+                        />
+                        <v-btn
+                          icon="mdi-delete"
+                          variant="text"
+                          size="small"
+                          color="error"
+                          @click="openDeleteDialog(task)"
+                          class="rounded-full"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
           </v-list-item>
-        </v-list>
 
-        <!-- No Tasks Message -->
-        <v-row v-if="filteredTasks.length === 0" class="mt-4">
-          <v-col cols="12" class="text-center">
-            <v-alert type="info" text="No tasks found matching your filters" />
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
+          <!-- No Tasks Message -->
+          <v-row v-if="filteredTasks.length === 0" class="mt-6">
+            <v-col cols="12">
+              <v-alert
+                type="info"
+                variant="tonal"
+                class="rounded-xl text-center"
+                border="start"
+              >
+                No tasks found matching your filters
+              </v-alert>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-container>
 
     <!-- Delete Confirmation Dialog -->
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card>
-        <v-card-title>Delete Task</v-card-title>
-        <v-card-text> Are you sure you want to delete this task? </v-card-text>
-        <v-card-actions>
+      <v-card class="rounded-xl">
+        <v-card-title class="text-h5 pt-6 pb-2">Delete Task</v-card-title>
+        <v-card-text class="pb-6">
+          Are you sure you want to delete this task?
+        </v-card-text>
+        <v-card-actions class="pb-4 px-6">
           <v-spacer />
           <v-btn
-            color="grey-darken-1"
-            variant="text"
+            color="gray"
+            variant="outlined"
             @click="deleteDialog = false"
+            class="rounded-lg mr-2"
           >
             Cancel
           </v-btn>
-          <v-btn color="error" variant="text" @click="confirmDelete">
+          <v-btn
+            color="error"
+            variant="elevated"
+            @click="confirmDelete"
+            class="rounded-lg"
+          >
             Delete
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-container>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { api } from '../api/task'
 
 interface Task {
@@ -203,12 +403,10 @@ const loadTasks = async () => {
   tasks.value = await api.getTasks(statusFilter.value, priorityFilter.value)
 }
 
-// Watch filters for changes
 watch([statusFilter, priorityFilter], async () => {
   await loadTasks()
 })
 
-// Load initial data
 onMounted(async () => {
   await loadTasks()
 })
@@ -241,7 +439,7 @@ const getPriorityColor = (priority: Task['priority']) => {
     case 'low':
       return 'success'
     default:
-      return 'grey'
+      return 'gray'
   }
 }
 
@@ -274,13 +472,6 @@ const confirmDelete = async () => {
   }
 }
 
-const toggleComplete = (task: Task) => {
-  const index = tasks.value.findIndex(t => t.id === task.id)
-  if (index > -1) {
-    tasks.value[index].completed = !tasks.value[index].completed
-  }
-}
-
 const updateFilteredTasks = async (task: Task) => {
   await api.updateTask(task._id, { completed: task.completed })
   await loadTasks()
@@ -289,26 +480,26 @@ const updateFilteredTasks = async (task: Task) => {
 const startEditing = (task: Task) => {
   editingId.value = task._id
   editingText.value = task.text
-  editingPriority.value = task.priority // Set the editing priority
+  editingPriority.value = task.priority
 }
 
 const finishEditing = async (task: Task) => {
   if (editingText.value.trim() || editingPriority.value !== task.priority) {
     await api.updateTask(task._id, {
       text: editingText.value,
-      priority: editingPriority.value, // Update the priority
+      priority: editingPriority.value,
     })
     task.text = editingText.value
-    task.priority = editingPriority.value // Update the task's priority in the local state
+    task.priority = editingPriority.value
   }
   editingId.value = null
   editingText.value = ''
-  editingPriority.value = '' // Reset the editing priority
+  editingPriority.value = ''
 }
 
 const updatePriority = async (task: Task, newPriority: string) => {
   await api.updateTask(task._id, { priority: newPriority })
-  task.priority = newPriority // Update the task's priority in the local state
+  task.priority = newPriority
 }
 
 const filteredTasks = computed(() => {
