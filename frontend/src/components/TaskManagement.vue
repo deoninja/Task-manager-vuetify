@@ -88,10 +88,17 @@
                 variant="outlined"
                 class="rounded-lg"
                 bg-color="white"
+                append-inner-icon="mdi-magnify"
                 @input="searchTasks"
               />
             </v-col>
           </v-row>
+
+          <!-- Loader -->
+          <v-skeleton-loader
+            v-if="loading"
+            type="list-item-two-line, actions"
+          ></v-skeleton-loader>
 
           <!-- Task List -->
           <v-list
@@ -422,15 +429,28 @@ const priorityFilter = ref('all')
 const deleteDialog = ref(false)
 const taskToDelete = ref<Task | null>(null)
 const searchQuery = ref('')
+const loading = ref(false)
 
 // Load tasks based on filters
 const loadTasks = async () => {
+  loading.value = true
   tasks.value = await api.getTasks(statusFilter.value, priorityFilter.value)
+  if (tasks.value) {
+    loading.value = false
+  } else {
+    loading.value = false
+  }
 }
 
 // Search Task
 const searchTasks = async () => {
+  loading.value = true
   tasks.value = await api.searchTasks(searchQuery.value, priorityFilter.value)
+  if (tasks.value) {
+    loading.value = false
+  } else {
+    loading.value = false
+  }
 }
 
 // Watch for filter changes and load tasks
