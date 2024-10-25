@@ -17,7 +17,7 @@ See [Vite Configuration Reference](https://vite.dev/config/).
 ## Project Setup
 
 ```sh
-npm install
+git clone https://github.com/deoninja/Task-manager-vuetify.git
 ```
 
 ### Compile and Hot-Reload for Development
