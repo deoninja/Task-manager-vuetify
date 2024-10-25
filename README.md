@@ -26,6 +26,7 @@ Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https:
     PORT=3000
     ```
 
+<<<<<<< HEAD
 3. **Build and Run the Project**
 
     Use Docker Compose to build and run the containers:
@@ -43,6 +44,10 @@ Task-manager/
     ├── backend/                # Backend API and server configuration 
     ├── docker-compose.yml      # Docker Compose file to orchestrate services 
     └── README.md               # Project documentation
+=======
+```sh
+git clone https://github.com/deoninja/Task-manager-vuetify.git
+>>>>>>> fa779344278209a2d2e77d18e5a5def0880e4544
 ```
 
 ## Available Scripts
