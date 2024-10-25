@@ -16,12 +16,12 @@ Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https:
 
 2. **Set Up Environment Variables**
 
-    Ensure you have a `.env` file in the root of the project to manage environment variables (if necessary for the backend service). Here’s an example:
+    Ensure you have a `.env` file in the root of the frontend project to manage environment variables (if necessary for the backend service). Here’s an example:
 
     ```sh
     Task-manager/ 
-        ├── frontend/          
-        └── .env.example  # Rename the .env.example to .env
+        └── frontend/          
+            └── .env.example  # Rename the .env.example to .env
     ```
     
     ```plaintext
