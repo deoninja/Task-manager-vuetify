@@ -1,58 +1,79 @@
 # Task-manager
 
-This template should help get you started developing with Vue 3 in Vite.
+This project is a simple task manager application with separate frontend and backend services. The frontend is built with [Vuetify](https://vuetifyjs.com/) and runs on [http://localhost:8080](http://localhost:8080), while the backend is built with [Node.js](https://nodejs.org/) and runs on [http://localhost:3000](http://localhost:3000).
 
-## Recommended IDE Setup
+## Prerequisites
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https://docs.docker.com/compose/) installed on your machine. Docker is required to containerize and run both the frontend and backend components seamlessly.
 
-## Type Support for `.vue` Imports in TS
+## Getting Started
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+1. **Clone the Repository**
+    ```sh
+    git clone https://github.com/deoninja/Task-manager-vuetify.git
+    cd Task-manager-vuetify
+    ```
 
-## Customize configuration
+2. **Set Up Environment Variables**
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+    Ensure you have a `.env` file in the root of the project to manage environment variables (if necessary for the backend service). Here’s an example:
 
-## Project Setup
+    Task-manager/ 
+        ├── frontend/          
+        └── .env.example  # Rename the .env.example to .env
+    
+    ```plaintext
+    PORT=3000
+    ```
 
-```sh
-npm install
+3. **Build and Run the Project**
+
+    Use Docker Compose to build and run the containers:
+
+    ```sh
+    docker-compose up --build
+    ```
+
+    This command will pull required images, build your services, and start both the frontend and backend. The frontend will be accessible at [http://localhost:8080](http://localhost:8080), and the backend will be available at [http://localhost:3000](http://localhost:3000).
+
+## Project Structure
+```ssh
+Task-manager/ 
+    ├── frontend/               # Frontend files and Vue/Vuetify setup 
+    ├── backend/                # Backend API and server configuration 
+    ├── docker-compose.yml      # Docker Compose file to orchestrate services 
+    └── README.md               # Project documentation
 ```
 
-### Compile and Hot-Reload for Development
+## Available Scripts
+
+### Stopping the Services
+
+To stop the containers, run:
 
 ```sh
-npm run dev
+docker-compose down
+```
+This will stop and remove the containers but keep the built images for faster restart.
+
+## Rebuilding the Containers
+
+To rebuild without using cache, you can run:
+
+```sh
+docker-compose up --build --no-cache
 ```
 
-### Type-Check, Compile and Minify for Production
+## Troubleshooting
+Port Conflicts: Ensure that ports 8080 and 3000 are not occupied by other services on your machine.
+
+Docker Issues: If you encounter issues with Docker, try restarting Docker or check the Docker documentation for common troubleshooting steps.
+
+Network Issues: Verify that your network connection is stable and that there are no firewall rules blocking the services
+
+## License
+This project is licensed under the MIT License. See the LICENSE file for details.
 
 ```sh
-npm run build
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
+This README includes details about Docker setup, port information, basic troubleshooting, and project structure, which will make it easier for others to understand
 ```
