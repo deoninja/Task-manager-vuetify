@@ -115,6 +115,15 @@
                   color="success"
                   class="mr-2"
                 />
+                <v-chip
+                  :color="getPriorityColor(task.priority)"
+                  size="small"
+                  label
+                  variant="elevated"
+                  class="px-3"
+                >
+                  {{ task.priority }}
+                </v-chip>
               </template>
               <v-list-item-content class="py-2">
                 <template v-if="editingId === task._id">
@@ -127,7 +136,7 @@
                         variant="outlined"
                         density="comfortable"
                         placeholder="Task text"
-                        class="mb-2"
+                        class="mb-2 px-4"
                         autofocus
                       />
                     </div>
@@ -140,20 +149,27 @@
                         variant="outlined"
                         density="comfortable"
                         placeholder="Priority"
-                        class="mb-2 md:mb-0"
+                        class="mb-2 md:mb-0 px-4"
                         @change="updatePriority(task, editingPriority)"
                       />
                     </div>
 
                     <div class="flex justify-end md:justify-start items-center">
                       <v-btn
+                        prepend-icon="mdi-cancel"
+                        color="error"
+                        @click="editingId = null"
+                        class="rounded-lg w-full md:w-auto ml-4"
+                      >
+                        Cancel
+                      </v-btn>
+                      <v-btn
                         prepend-icon="mdi-check-circle"
                         color="success"
-                        variant="tonal"
                         @click="finishEditing(task)"
-                        class="rounded-lg w-full md:w-auto"
+                        class="rounded-lg w-full md:w-auto ml-4"
                       >
-                        Save Changes
+                        Save
                       </v-btn>
                     </div>
                   </div>
@@ -161,7 +177,7 @@
 
                 <template v-else>
                   <div
-                    class="flex flex-col sm:flex-row items-start sm:items-center gap-2"
+                    class="flex flex-col sm:flex-row items-start sm:items-center gap-2 px-4"
                   >
                     <v-list-item-title
                       :class="{
@@ -179,16 +195,6 @@
 
               <template v-slot:append>
                 <div class="flex items-center gap-2">
-                  <v-chip
-                    :color="getPriorityColor(task.priority)"
-                    class="mr-2"
-                    size="small"
-                    label
-                    variant="elevated"
-                  >
-                    {{ task.priority }}
-                  </v-chip>
-
                   <v-btn
                     icon="mdi-pencil"
                     variant="text"
@@ -220,16 +226,16 @@
           >
             <div class="w-full flex flex-col sm:flex-row gap-4 p-4">
               <!-- Checkbox Section -->
-              <div class="flex items-start sm:items-center">
+              <div class="flex sm:items-center">
                 <v-checkbox
                   v-model="task.completed"
                   @change="updateFilteredTasks(task)"
                   hide-details
                   color="success"
                   class="mt-1"
-                />
+                >
+                </v-checkbox>
               </div>
-
               <!-- Content Section -->
               <div class="flex-grow">
                 <template v-if="editingId === task._id">
@@ -272,15 +278,22 @@
                         />
                       </div>
 
-                      <div class="flex items-end">
+                      <div class="flex items-end mt-2">
+                        <v-btn
+                          prepend-icon="mdi-cancel"
+                          color="error"
+                          @click="editingId = null"
+                          class="rounded-lg w-full md:w-auto"
+                        >
+                          Cancel
+                        </v-btn>
                         <v-btn
                           prepend-icon="mdi-check-circle"
                           color="success"
-                          variant="tonal"
                           @click="finishEditing(task)"
-                          class="rounded-lg w-full sm:w-auto h-[56px]"
+                          class="rounded-lg w-full md:w-auto ml-4"
                         >
-                          Save Changes
+                          Save
                         </v-btn>
                       </div>
                     </div>
@@ -302,19 +315,18 @@
                       >
                         {{ task.text }}
                       </span>
-                    </div>
-
-                    <div class="flex items-center gap-2 ml-auto">
                       <v-chip
                         :color="getPriorityColor(task.priority)"
                         size="small"
                         label
                         variant="elevated"
-                        class="px-3"
+                        class="px-3 d-flex justify-center mt-2"
                       >
                         {{ task.priority }}
                       </v-chip>
+                    </div>
 
+                    <div class="flex items-center gap-2 ml-auto">
                       <div class="flex gap-1">
                         <v-btn
                           icon="mdi-pencil"
