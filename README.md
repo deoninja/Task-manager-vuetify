@@ -103,7 +103,7 @@ Docker Issues: If you encounter issues with Docker, try restarting Docker or che
 Network Issues: Verify that your network connection is stable and that there are no firewall rules blocking the services
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the GNU License. See the LICENSE file for details.
 
 ```sh
 This README includes details about Docker setup, port information, basic troubleshooting, and project structure, which will make it easier for others to understand
