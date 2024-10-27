@@ -8,6 +8,22 @@ Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https:
 
 ## Getting Started
 
+## The application will be available at:
+
+    ```sh
+    Frontend: http://localhost:8080
+    Backend API: http://localhost:3000
+    MongoDB: localhost:27017
+    ```
+## The setup includes:
+- A simple task manager application with CRUD operations.
+- MongoDB database for persistent storage
+- Node.js/Express backend with REST API
+- Vue.js frontend with API integration
+- Docker configuration for all services
+- Volume mapping for database persistence
+- Development-friendly setup with hot-reloading
+
 1. **Clone the Repository**
     ```sh
     git clone https://github.com/deoninja/Task-manager-vuetify.git
@@ -40,14 +56,27 @@ Make sure you have [Docker](https://www.docker.com/) and [Docker Compose](https:
 
 ## Project Structure
 ```ssh
-Task-manager/ 
+    Task-manager/
     ├── frontend/               # Frontend files and Vue/Vuetify setup 
+    │   ├── src/
+    │   │   └── ... (your Vue files)
+    │   └── Dockerfile
     ├── backend/                # Backend API and server configuration 
-    ├── docker-compose.yml      # Docker Compose file to orchestrate services 
-    └── README.md               # Project documentation
+    │   ├── src/
+    │   │   ├── app.js
+    │   │   └── models/
+    │   │       └── Task.js
+    │   └── Dockerfile
+    ├──  docker-compose.yml     # Docker Compose file to orchestrate services 
+    └──  README.md              # Project documentation
 ```
 
 ## Available Scripts
+
+To start the containers, run:
+```sh
+docker-compose up --build
+```
 
 ### Stopping the Services
 
